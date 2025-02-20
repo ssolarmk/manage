@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.web.manage.common.mapper.LoginMapper">
+    <select id="chkLogin" parameterType="hashMap" resultType="int">
+        SELECT count(*) AS cnt    
+          FROM tbl_user 
+         WHERE user_id = #{userId}
+           AND user_pwd = PASSWORD(#{userPwd})
+    </select>
+
+    <select id="getUserRetrieve" parameterType="hashMap" resultType="com.web.manage.common.domain.SessionVO">
+     SELECT T1.user_id AS userId,
+        T1.user_nm AS userNm,
+        T1.use_yn AS useYn,
+        T1.aca_id AS acaId,
+        T2.aca_nm AS acaNm,
+        T2.aca_id AS corpCd,
+        T1.user_pwd AS userPwd
+       FROM tbl_user T1
+       INNER JOIN tbl_aca T2
+        ON T2.aca_id = T1.aca_id
+        AND T2.use_yn = 'Y'
+      WHERE T1.user_id = #{userId}
+      AND T1.use_yn = 'Y'
+      AND T1.user_pwd = PASSWORD(#{userPwd})
+	</select>
+  <select id="getAuthGrp" parameterType="hashMap" resultType="string">
+      SELECT a.auth_grp_cd
+        FROM tbl_user a
+               INNER JOIN tbl_auth_grp_menu c
+                   ON c.auth_grp_cd = a.auth_grp_cd
+       WHERE a.user_id = #{userId}
+         AND a.use_yn = 'Y'
+      GROUP BY a.auth_grp_cd
+	</select>
+
+  <select id="getMenuRetrieve" parameterType="com.web.manage.common.domain.SessionVO" resultType="java.util.HashMap">
+    SELECT a.menu_cd AS menuCd
+      , a.menu_nm AS menuNm
+      , a.menu_tp AS menuTp
+      , a.menu_url AS menuUrl
+      , a.use_yn AS useYn
+      , a.ent_dttm AS entDttm
+      , a.upt_dttm AS uptDttm
+      , a.ent_user_id AS entUserId
+      , a.upt_user_id AS uptUserId
+      , a.menu_prnt_cd AS menuPrntCd
+      , a.menu_ord AS menuOrd
+      , a.view_yn AS viewYn
+      , a.site_gb_cd AS siteGbCd
+      , a.view_icon AS viewIcon
+      FROM tbl_menu a
+      LEFT JOIN tbl_auth_grp_menu b ON a.menu_cd = b.menu_cd
+      WHERE a.menu_prnt_cd = 'M'
+        AND b.auth_grp_cd = #{authGrpCd}
+        AND a.use_yn = 'Y'
+        AND a.view_yn = 'Y'
+	</select>
+  <select id="getMenuRetrieve2nd" parameterType="com.web.manage.common.domain.SessionVO" resultType="java.util.HashMap">
+    SELECT a.menu_cd AS menuCd
+      , a.menu_nm AS menuNm
+      , a.menu_tp AS menuTp
+      , a.menu_url AS menuUrl
+      , a.use_yn AS useYn
+      , a.ent_dttm AS entDttm
+      , a.upt_dttm AS uptDttm
+      , a.ent_user_id AS entUserId
+      , a.upt_user_id AS uptUserId
+      , a.menu_prnt_cd AS menuPrntCd
+      , a.menu_ord AS menuOrd
+      , a.view_yn AS viewYn
+      , a.site_gb_cd AS siteGbCd
+      , a.view_icon AS viewIcon
+      FROM tbl_menu a
+      LEFT JOIN tbl_auth_grp_menu b ON a.menu_cd = b.menu_cd
+      WHERE a.menu_prnt_cd IN <foreach item="item" index="index" collection="menu" open="(" separator="," close=")">#{item.menuCd}</foreach>
+        AND b.auth_grp_cd = #{authGrpCd}
+        AND a.use_yn = 'Y'
+        AND a.view_yn = 'Y'
+	</select>
+  <select id="getMenuRetrieve3rd" parameterType="com.web.manage.common.domain.SessionVO" resultType="java.util.HashMap">
+    SELECT a.menu_cd AS menuCd
+      , a.menu_nm AS menuNm
+      , a.menu_tp AS menuTp
+      , a.menu_url AS menuUrl
+      , a.use_yn AS useYn
+      , a.ent_dttm AS entDttm
+      , a.upt_dttm AS uptDttm
+      , a.ent_user_id AS entUserid
+      , a.upt_user_id AS uptUserid
+      , a.menu_prnt_cd AS menuPrntCd
+      , a.menu_ord AS menuOrd
+      , a.view_yn AS viewYn
+      , a.site_gb_cd AS siteGbCd
+      , a.view_icon AS viewIcon
+      FROM tbl_menu a
+      LEFT JOIN tbl_auth_grp_menu b ON a.menu_cd = b.menu_cd
+      WHERE a.menu_prnt_cd IN <foreach item="item" index="index" collection="menu2nd" open="(" separator="," close=")">#{item.menuCd}</foreach>
+        AND b.auth_grp_cd = #{authGrpCd}
+        AND a.use_yn = 'Y'
+        AND a.view_yn = 'Y'
+	</select>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.web.manage.center.mapper.UserMngMapper">
+    <select id="getQueryTotalCnt" resultType="int">
+        SELECT FOUND_ROWS()
+    </select>
+    <select id="userMngListRetrieve" parameterType="hashMap" resultType="hashMap">
+        SELECT SQL_CALC_FOUND_ROWS 
+              tb.user_id
+            , tb.aca_id
+            , b.aca_nm
+            , tb.user_nm
+            , tb.user_pwd
+            , tb.user_gb
+            , tb.auth_grp_cd
+            ,  (SELECT code_nm FROM tbl_code WHERE code = tb.auth_grp_cd AND code_grp_cd = 'AUTH_GRP_CD') AS auth_grp_nm
+            , IFNULL(tb.hp_no, '-') AS hp_no
+            , tb.tel_no
+            , IFNULL(tb.email, '-') AS email
+            , tb.zip_code
+            , tb.addr
+            , tb.addr_detail
+            , tb.use_yn
+            , DATE_FORMAT(tb.ent_dttm, '%Y-%m-%m %H:%i:%s') AS ent_dttm
+            , tb.ent_user_id
+            , DATE_FORMAT(tb.upt_dttm, '%Y-%m-%m %H:%i:%s') AS upt_dttm
+            , tb.upt_user_id
+        FROM tbl_user tb
+        LEFT JOIN tbl_aca b ON b.aca_id = tb.aca_id
+        WHERE 1 = 1
+        <choose>
+			<when test="sidx != ''">
+				ORDER BY ${sidx} ${sord}
+			</when>
+			<otherwise>
+				ORDER BY ent_dttm DESC
+			</otherwise>
+		</choose>
+    </select>
+    <select id="getAcaList" resultType="hashMap">
+        SELECT aca_id as code
+             , aca_nm as codeNm
+        FROM tbl_aca
+        WHERE use_yn = 'Y'
+    </select>
+    <insert id="userCreate" parameterType="hashMap">
+        INSERT INTO tbl_user
+        (
+              user_id
+            , aca_id
+            , user_nm
+            , user_pwd
+            , user_gb
+            , auth_grp_cd
+            , hp_no
+            , email
+            , use_yn
+            , ent_dttm
+            , ent_user_id
+            , upt_dttm
+            , upt_user_id
+        )
+        VALUES
+        (
+              #{user_id}
+            , #{aca_id}
+            , #{user_nm}
+            , #{user_pwd}
+            , '01'
+            , #{auth_grp_cd}
+            , #{hp_no}
+            , #{email}
+            , #{use_yn}
+            , NOW()
+            , #{ent_user_id}
+            , NOW()
+            , #{ent_user_id}
+        )
+    </insert>
+    <update id="userUpdate" parameterType="hashMap">
+        UPDATE tbl_user
+        SET
+              aca_id = #{aca_id}
+            , user_nm = #{user_nm}
+            , user_pwd = #{user_pwd}
+            , auth_grp_cd = #{auth_grp_cd}
+            , hp_no = #{hp_no}
+            , email = #{email}
+            , use_yn = #{use_yn}
+            , upt_dttm = NOW()
+            , upt_user_id = #{ent_user_id}
+        WHERE user_id = #{user_id}
+    </update>
+</mapper>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}" layout:fragment="Content">
+  <head>
+    <title>사용자 관리</title>
+    <script src="/vendors/tinymce/tinymce.min.js"></script>
+    <script src="/vendors/datatables.net/dataTables.min.js"></script>
+    <script src="/vendors/datatables.net-bs5/dataTables.bootstrap5.min.js"></script>
+    <script src="/vendors/datatables.net-fixedcolumns/dataTables.fixedColumns.min.js"></script>
+    <script src="/vendors/dropzone/dropzone-min.js"></script>
+    <script src="/js/jquery.form.js"></script>
+    <link rel="stylesheet" href="/vendors/datatables.net-bs5/dataTables.bootstrap5.min.css" />
+  </head>
+  <script th:inline="none">
+    $(document).ready(function () {
+      callAjax('/common/totalCodelist', "code_grp_cd=('AUTH_GRP_CD')", fn_code_setting);
+      callAjaxCombo('/center/user/userMng/getAcaList', '', '#aca_id', '1', '');
+      function fn_code_setting(data) {
+        codeSetting('AUTH_GRP_CD', data.data, '#auth_grp_cd', '1', '', '');
+      }
+      var tbl_user = $('#tbl_user').DataTable({
+        processing: true,
+        serverSide: true,
+        select: true,
+        responsive: true,
+        ajax: {
+          url: '/center/user/userMng/list',
+          contentType: 'application/json',
+          dataType: 'JSON',
+          type: 'POST',
+          data: function (d) {
+            return JSON.stringify(d);
+          },
+        },
+        columns: [{ data: 'aca_nm' }, { data: 'auth_grp_nm' }, { data: 'user_nm' }, { data: 'user_id' }, { data: 'hp_no' }, { data: 'email' }, { data: 'use_yn' }, { data: 'ent_dttm' }],
+        order: [[7, 'desc']],
+        paging: true,
+        lengthChange: false,
+        searching: false,
+        ordering: true,
+        autoWidth: false,
+        responsive: true,
+        scrollCollapse: true,
+        pageLength: 20,
+        scrollY: '550px',
+        info: false,
+        language: {
+          emptyTable: '데이터가 없습니다.',
+          search: '검색:',
+          zeroRecords: '일치하는 데이터가 없습니다.',
+          loadingRecords: '로딩중...',
+          processing: '처리중...',
+        },
+      });
+      $('#tbl_user').on('click', 'tr', function () {
+        var data = tbl_user.row(this).data();
+        $('#aca_id').val(data.aca_id).prop('selected', true);
+        $('#auth_grp_cd').val(data.auth_grp_cd).prop('selected', true);
+        $('#user_nm').val(data.user_nm);
+        $('#user_id').val(data.user_id);
+        $('#hp_no').val(data.hp_no);
+        $('#email').val(data.email);
+        if (data.use_yn == 'Y') {
+          $('#use_yn_Y').prop('checked', true);
+        } else {
+          $('#use_yn_N').prop('checked', true);
+        }
+        $('#crud').val('update');
+        $('#user-add-modal').modal('show');
+      });
+      $('#user_add_modal').click(function () {
+        $('#aca_id').val('').prop('selected', true);
+        $('#auth_grp_cd').val('').prop('selected', true);
+        $('#user_nm').val('');
+        $('#user_id').val('');
+        $('#hp_no').val('');
+        $('#email').val('');
+        $('#use_yn_Y').prop('checked', true);
+        $('#crud').val('create');
+      });
+      $('#btn_submit').click(function () {
+        var formData = $('#user_add_form').serialize();
+        var form = $('#user_add_form');
+        var checked = true;
+        $.each(form, function (i, val) {
+          if (!val.checkValidity()) {
+            checked = false;
+          }
+        });
+        if (checked) {
+          var crud = $('#crud').val();
+          if (crud == 'create') {
+            ConfirmdialogToAjax('create', '/center/user/userMng/create', formData, fn_return_submit);
+          } else if (crud == 'update') {
+            ConfirmdialogToAjax('update', '/center/user/userMng/update', formData, fn_return_submit);
+          }
+        }
+      });
+      function fn_return_submit(data) {
+        var resultCode = data.resultCode;
+        var resultMsg = data.resultMsg;
+        if (resultCode == 'S000') {
+          swal('성공', '작업을 정상적으로 완료하였습니다.', 'success');
+          $('#user-add-modal').modal('hide');
+          tbl_user.ajax.reload();
+        }
+      }
+    });
+  </script>
+  <div class="content">
+    <div class="card mb-3" style="height: 85px">
+      <div class="bg-holder d-none d-lg-block bg-card"></div>
+      <div class="card-body position-relative">
+        <div class="row">
+          <div class="col-lg-8">
+            <h4>사용자 관리</h4>
+            <nav style="--falcon-breadcrumb-divider: '»'" aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/main">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">사용자관리</li>
+                <li class="breadcrumb-item active" aria-current="page">사용자</li>
+                <li class="breadcrumb-item active nav-item dropdown dropdown-hover" aria-current="page">
+                  <a class="nav-link dropdown-toggle link-primary d-block" href="#" aria-haspopup="true" data-bs-toggle="dropdown" aria-expanded="false">사용자관리</a>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item link-600 fw-medium" link-body-emphasis href="#">사용자관리</a></li>
+                  </ul>
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="row flex-between-end">
+              <div class="col-auto align-self-center">
+                <h5 class="mb-0">사용자 목록</h5>
+              </div>
+              <div class="col-auto">
+                <button class="btn btn-primary" id="user_add_modal" data-bs-toggle="modal" data-bs-target="#user-add-modal">신규</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body px-0 py-0">
+            <div class="table-responsive scrollbar">
+              <table class="table table-striped table-sm fs-9 mb-0" id="tbl_user">
+                <thead class="bg-200">
+                  <tr>
+                    <th class="text-900">학원명</th>
+                    <th class="text-900">구분</th>
+                    <th class="text-900">사용자명</th>
+                    <th class="text-900">아이디</th>
+                    <th class="text-900">연락처</th>
+                    <th class="text-900">이메일</th>
+                    <th class="text-900">사용여부</th>
+                    <th class="text-900">등록일</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="user-add-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form class="needs-validation" novalidate="" id="user_add_form" name="user_add_form" onsubmit="return false;">
+          <input type="hidden" name="crud" id="crud" />
+          <div class="modal-header">
+            <h5 class="modal-title">사용자 등록</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3 px-3">
+              <div class="col-md-6">
+                <label class="form-label" for="user_id">아이디</label>
+                <input type="text" class="form-control form-control-sm" id="user_id" name="user_id" required />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="aca_id">학원</label>
+                <select class="form-select form-select-sm" id="aca_id" name="aca_id" required>
+                  <option value="">선택</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-3 px-3">
+              <div class="col-md-6">
+                <label class="form-label" for="auth_grp_cd">사용자구분</label>
+                <select class="form-select form-select-sm" id="auth_grp_cd" name="auth_grp_cd" required>
+                  <option value="">선택</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="user_nm">사용자명</label>
+                <input type="text" class="form-control form-control-sm" id="user_nm" name="user_nm" required />
+              </div>
+            </div>
+            <div class="row mb-3 px-3">
+              <div class="col-md-6">
+                <label class="form-label" for="hp_no">연락처</label>
+                <input type="text" class="form-control form-control-sm" id="hp_no" name="hp_no" required />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="email">이메일</label>
+                <input type="text" class="form-control form-control-sm" id="email" name="email" required />
+              </div>
+            </div>
+            <div class="row mb-3 px-3">
+              <div class="col-md-6">
+                <div class="col-md-6">
+                  <label class="form-label" for="use_yn">사용여부</label>
+                  <div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" id="use_yn_Y" type="radio" name="use_yn" value="Y" required />
+                      <label class="form-check-label" for="use_yn_Y">예</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" id="use_yn_N" type="radio" name="use_yn" value="N" required />
+                      <label class="form-check-label" for="use_yn_N">아니요</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" id="btn_submit" type="submit">저장</button>
+            <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">닫기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</html>
