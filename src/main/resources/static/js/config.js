@@ -24,8 +24,8 @@
     phoenixTheme: 'light',
     phoenixNavbarTopStyle: 'default',
     phoenixNavbarVerticalStyle: 'default',
-    phoenixNavbarPosition: 'vertical',
-    phoenixNavbarTopShape: 'slim',
+    phoenixNavbarPosition: 'horizontal',
+    phoenixNavbarTopShape: 'default',
     phoenixIsRTL: false,
     phoenixSupportChat: false,
   };

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ko" dir="ltr" data-navigation-type="default" data-navbar-horizontal-shape="slim" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<html lang="ko" dir="ltr" data-navigation-type="horizontal" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
   <head th:replace="~{fragments/config :: config}">
     <title layout:title-pattern="$LAYOUT_TITLE : $CONTENT_TITLE">공통 타이틀</title>
   </head>
   <body>
     <main class="main" id="top">
       <!--Header 영역을 참조합니다.-->
-      <header th:replace="~{fragments/header :: header}"></header>
+      <!--<header th:replace="~{fragments/header :: header}"></header>-->
       <!--Navigation 영역을 참조합니다.-->
       <nav th:replace="~{fragments/top_nav :: top_nav}"></nav>
 
