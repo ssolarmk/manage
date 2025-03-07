@@ -12,6 +12,7 @@
   </head>
   <script th:inline="none">
     $(document).ready(function () {
+      $('#user_add_form').onLoadFunction();
       callAjax('/common/totalCodelist', "code_grp_cd=('AUTH_GRP_CD')", fn_code_setting);
       callAjaxCombo('/center/user/userMng/getAcaList', '', '#aca_id', '1', '');
       function fn_code_setting(data) {
@@ -203,11 +204,17 @@
             <div class="row mb-3 px-3">
               <div class="col-md-6">
                 <label class="form-label" for="hp_no">연락처</label>
-                <input type="text" class="form-control form-control-sm" id="hp_no" name="hp_no" required />
+                <input type="text" class="form-control form-control-sm" id="hp_no" name="hp_no" required istyle="phone" />
               </div>
               <div class="col-md-6">
                 <label class="form-label" for="email">이메일</label>
-                <input type="text" class="form-control form-control-sm" id="email" name="email" required />
+                <input type="text" class="form-control form-control-sm" id="email" name="email" istyle="email" required />
+              </div>
+            </div>
+            <div class="row mb-3 px-3">
+              <div class="col-md-6">
+                <label class="form-label" for="hp_no">생년월일</label>
+                <input type="text" class="form-control form-control-sm" id="hp_no" name="hp_no" required istyle="date" />
               </div>
             </div>
             <div class="row mb-3 px-3">

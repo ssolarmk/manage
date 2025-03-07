@@ -71,5 +71,11 @@ public class LoginController {
 
 		return result;
 	}
+	@RequestMapping("/logout")
+	public String logout(HttpServletRequest request) {
+		HttpSession session = request.getSession(true);
+		session.invalidate();
+		return "pages/login";
+	}
 	
 }
